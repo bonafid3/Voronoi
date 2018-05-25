@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/">
+        <file>dxf1.txt</file>
+        <file>dxf2.txt</file>
+    </qresource>
+</RCC>
