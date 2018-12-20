@@ -1,0 +1,4 @@
+v0.2 - Added bezier smooth curve option
+     - Added border to the whole output
+
+v0.1 - Initial release
