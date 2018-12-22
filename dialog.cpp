@@ -13,8 +13,6 @@
 
 #include "utils.h"
 
-enum { STRAIGHT=0, CURVED };
-
 using namespace ClipperLib;
 
 Dialog::Dialog(QWidget *parent) :
@@ -84,7 +82,7 @@ void Dialog::voronoi()
     int vertical = ui->mVertical->value();
     int spacing = ui->mSpacing->value();
     int disturbance = ui->mDisturbance->value();
-    int vtype = ui->mType->currentIndex();
+    float curves = ui->mCurves->value()/100.f;
     int offs = ui->mOffset->value();
 
     points = (jcv_point*)malloc( sizeof(jcv_point) * horizontal * vertical);
@@ -167,7 +165,7 @@ void Dialog::voronoi()
                 if(v2.y() < minY) minY = v2.y();
                 else if(v2.y() > maxY) maxY = v2.y();
 
-                if(vtype == STRAIGHT) {
+                if(curves == 0) {
                     mScene->addLine(v1.x(), v1.y(), v2.x(), v2.y());
                     QString line = DXF_Line(id++, v1.x(), v1.y(), 0, v2.x(), v2.y(), 0);
                     appendFile(ui->mDXFFile->text(), line.toUtf8());
@@ -179,19 +177,16 @@ void Dialog::voronoi()
 
         std::vector<QVector2D> pts;
         for(int i=0; i<segs.size(); i++) {
-
             int j=i+1; if(j==segs.size()) j=0;
 
             QVector2D v1 = segs[i].p[1] - segs[i].p[0];
             QVector2D v2 = segs[j].p[1] - segs[j].p[0];
 
-            QVector2D nv1 = segs[i].p[0] + v1/2;
-            QVector2D nv2 = segs[j].p[0] + v2/2;
+            QVector2D nv1 = segs[i].p[0] + v1*(1-(curves/2));
+            QVector2D nv2 = segs[j].p[0] + v2*   (curves/2);
 
-            //mScene->addLine(nv1.x(), nv1.y(), nv2.x(), nv2.y());
-
-            for(int t=0; t<=10; t++) {
-                pts.push_back(nv1 + bezier(v1/2, v2/2, t*0.1));
+            for(int t=0; t<=10; t+=1) {
+                pts.push_back(bezier(nv1, nv2, segs[i].p[1], t*0.1));
             }
         }
 
@@ -203,18 +198,6 @@ void Dialog::voronoi()
             QString line = DXF_Line(id++, pts[k].x(), pts[k].y(), 0, pts[l].x(), pts[l].y(), 0);
             appendFile(ui->mDXFFile->text(), line.toUtf8());
         }
-
-        /* //simple polygon corner rounding
-        for(int i=0; i<segs.size(); i++) {
-            int j=i+1; if(j==segs.size()) j=0;
-            QVector2D isect = intersectLines_noParallel(segs[i], segs[j]);
-            QVector2D oldV1 = segs[i].p[1] - segs[i].p[0];
-            float dot = vDot(oldV1, isect-segs[i].p[0]) / oldV1.length();
-            QVector2D newV1(oldV1.normalized() * dot);
-            newV1 += segs[i].p[0];
-            mScene->addLine(isect.x(), isect.y(), newV1.x(), newV1.y());
-            mScene->addEllipse(isect.x()-cr, isect.y()-cr, cr*2, cr*2);
-        }*/
 
     }
 
@@ -228,23 +211,14 @@ void Dialog::voronoi()
     mScene->addLine(maxX, maxY, minX, maxY);
     mScene->addLine(minX, maxY, minX, minY);
 
-    QString line = DXF_Line(id++, minX, minY, 0, maxX, minY, 0);
-    appendFile(ui->mDXFFile->text(), line.toUtf8());
-
-     line = DXF_Line(id++, maxX, minY, 0, maxX, maxY, 0);
-    appendFile(ui->mDXFFile->text(), line.toUtf8());
-
-     line = DXF_Line(id++, maxX, maxY, 0, minX, maxY, 0);
-    appendFile(ui->mDXFFile->text(), line.toUtf8());
-
-     line = DXF_Line(id++, minX, maxY, 0, minX, minY, 0);
-    appendFile(ui->mDXFFile->text(), line.toUtf8());
+    appendFile(ui->mDXFFile->text(), DXF_Line(id++, minX, minY, 0, maxX, minY, 0).toUtf8());
+    appendFile(ui->mDXFFile->text(), DXF_Line(id++, maxX, minY, 0, maxX, maxY, 0).toUtf8());
+    appendFile(ui->mDXFFile->text(), DXF_Line(id++, maxX, maxY, 0, minX, maxY, 0).toUtf8());
+    appendFile(ui->mDXFFile->text(), DXF_Line(id++, minX, maxY, 0, minX, minY, 0).toUtf8());
 
     jcv_diagram_free( &diagram );
 
     appendFile(ui->mDXFFile->text(), readFile(":/dxf2.txt"));
-
-    return;
 }
 
 Dialog::~Dialog()
@@ -280,11 +254,9 @@ QVector2D Dialog::intersectLines_noParallel(const Seg2f& S0, const Seg2f& S1)
     return S0.p[0] + t * alpha;
 }
 
-
-// must be between 0 and 1
-QVector2D Dialog::bezier(const QVector2D &p1, const QVector2D &p2, const float t)
+QVector2D Dialog::bezier(const QVector2D& s, const QVector2D& e, const QVector2D& c, const float t)
 {
-    QVector2D v1 = p1 * t;
-    QVector2D v2 = p1 + p2 * t;
-    return v1 + (v2 - v1) * t;
+    QVector2D q0 =  s +   (c - s) * t;
+    QVector2D q1 =  c +   (e - c) * t;
+    return q0 + (q1 - q0) * t;
 }

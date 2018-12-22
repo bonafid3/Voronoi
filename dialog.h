@@ -61,8 +61,7 @@ public:
     void voronoi();
 
     QVector2D intersectLines_noParallel(const Seg2f& S0, const Seg2f& S1);
-    QVector2D bezier(const QVector2D &mP1, const QVector2D &mP2, const float t);
-
+    QVector2D bezier(const QVector2D &s, const QVector2D &e, const QVector2D &c, const float t);
 
 private slots:
 
