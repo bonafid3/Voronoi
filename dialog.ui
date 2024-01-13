@@ -6,141 +6,236 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>536</width>
-    <height>722</height>
+    <width>450</width>
+    <height>800</height>
    </rect>
   </property>
-  <property name="windowTitle">
-   <string>Voronoi DXF generator 0.3</string>
+  <property name="minimumSize">
+   <size>
+    <width>450</width>
+    <height>800</height>
+   </size>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout_2">
+  <property name="windowTitle">
+   <string>Voronoi DXF generator 0.5</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout_4">
    <item>
-    <widget class="QGraphicsView" name="graphicsView"/>
+    <widget class="cGLWidget" name="mGLWidget" native="true">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>100</height>
+      </size>
+     </property>
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border: 2px solid red</string>
+     </property>
+    </widget>
    </item>
    <item>
     <widget class="QGroupBox" name="groupBox">
      <property name="title">
       <string>Parameters</string>
      </property>
-     <layout class="QVBoxLayout" name="verticalLayout">
+     <layout class="QVBoxLayout" name="verticalLayout_3">
       <item>
-       <layout class="QFormLayout" name="formLayout">
+       <layout class="QFormLayout" name="formLayout_3">
         <item row="0" column="0">
          <widget class="QLabel" name="label">
           <property name="text">
-           <string>Horizontal</string>
+           <string>DXF clipper file:</string>
           </property>
          </widget>
         </item>
         <item row="0" column="1">
-         <widget class="QSpinBox" name="mHorizontal">
-          <property name="minimum">
-           <number>1</number>
-          </property>
-          <property name="maximum">
-           <number>20</number>
-          </property>
-          <property name="value">
-           <number>5</number>
-          </property>
-         </widget>
+         <layout class="QHBoxLayout" name="horizontalLayout_3">
+          <item>
+           <widget class="QLabel" name="mDXFClipperPolyFile">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>50</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>default</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="mDXFClipperPolyBrowseButton">
+            <property name="focusPolicy">
+             <enum>Qt::NoFocus</enum>
+            </property>
+            <property name="text">
+             <string>Browse &amp;&amp; Load</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </item>
         <item row="1" column="0">
          <widget class="QLabel" name="label_2">
           <property name="text">
-           <string>Vertical</string>
+           <string>Show clipper polygon</string>
           </property>
          </widget>
         </item>
         <item row="1" column="1">
-         <widget class="QSpinBox" name="mVertical">
-          <property name="minimum">
-           <number>1</number>
+         <widget class="QCheckBox" name="showClipperCheckbox">
+          <property name="focusPolicy">
+           <enum>Qt::TabFocus</enum>
           </property>
-          <property name="maximum">
-           <number>20</number>
-          </property>
-          <property name="value">
-           <number>5</number>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="0">
-         <widget class="QLabel" name="label_4">
           <property name="text">
-           <string>Spacing</string>
+           <string/>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
           </property>
          </widget>
         </item>
         <item row="2" column="1">
-         <widget class="QSpinBox" name="mSpacing">
-          <property name="minimum">
-           <number>1</number>
+         <widget class="QGroupBox" name="mSplineGroupBox">
+          <property name="focusPolicy">
+           <enum>Qt::TabFocus</enum>
           </property>
-          <property name="maximum">
-           <number>1000</number>
+          <property name="title">
+           <string>Spline</string>
           </property>
-          <property name="value">
-           <number>75</number>
+          <property name="flat">
+           <bool>false</bool>
           </property>
+          <property name="checkable">
+           <bool>true</bool>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout">
+           <item>
+            <layout class="QFormLayout" name="formLayout">
+             <item row="0" column="0">
+              <widget class="QLabel" name="label_3">
+               <property name="text">
+                <string>Alpha</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="1">
+              <widget class="QDoubleSpinBox" name="mAlpha">
+               <property name="maximum">
+                <double>1.000000000000000</double>
+               </property>
+               <property name="singleStep">
+                <double>0.100000000000000</double>
+               </property>
+               <property name="value">
+                <double>0.300000000000000</double>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="0">
+              <widget class="QLabel" name="label_4">
+               <property name="text">
+                <string>Tension</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="1">
+              <widget class="QDoubleSpinBox" name="mTension">
+               <property name="maximum">
+                <double>1.000000000000000</double>
+               </property>
+               <property name="singleStep">
+                <double>0.100000000000000</double>
+               </property>
+               <property name="value">
+                <double>0.700000000000000</double>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="0">
+              <widget class="QLabel" name="label_8">
+               <property name="text">
+                <string>Samples</string>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="1">
+              <widget class="QSpinBox" name="mSamples">
+               <property name="minimum">
+                <number>3</number>
+               </property>
+               <property name="value">
+                <number>60</number>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+          </layout>
          </widget>
         </item>
-        <item row="3" column="0">
-         <widget class="QLabel" name="label_3">
-          <property name="text">
-           <string>Disturbance</string>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="1">
-         <widget class="QSpinBox" name="mDisturbance">
-          <property name="maximum">
-           <number>100</number>
-          </property>
-          <property name="value">
-           <number>25</number>
-          </property>
-         </widget>
-        </item>
-        <item row="4" column="0">
+        <item row="5" column="0">
          <widget class="QLabel" name="label_5">
           <property name="text">
-           <string>Offset</string>
+           <string>Thickness</string>
           </property>
          </widget>
         </item>
-        <item row="4" column="1">
-         <widget class="QSpinBox" name="mOffset">
+        <item row="5" column="1">
+         <widget class="QDoubleSpinBox" name="mOffset">
+          <property name="maximum">
+           <double>99.000000000000000</double>
+          </property>
+          <property name="singleStep">
+           <double>0.500000000000000</double>
+          </property>
           <property name="value">
-           <number>5</number>
+           <double>3.500000000000000</double>
           </property>
          </widget>
         </item>
         <item row="6" column="0">
-         <widget class="QLabel" name="label_7">
-          <property name="text">
-           <string>Curves</string>
-          </property>
-         </widget>
-        </item>
-        <item row="8" column="0">
          <widget class="QLabel" name="label_6">
           <property name="text">
-           <string>DXF output file</string>
+           <string>DXF output file:</string>
           </property>
          </widget>
         </item>
-        <item row="8" column="1">
+        <item row="6" column="1">
          <layout class="QHBoxLayout" name="horizontalLayout">
           <item>
            <widget class="QLineEdit" name="mDXFFile">
+            <property name="focusPolicy">
+             <enum>Qt::TabFocus</enum>
+            </property>
             <property name="text">
-             <string>D:/projects/build-voronoi-Desktop_Qt_5_11_2_MSVC2017_64bit-Debug/voronoi.dxf</string>
+             <string>C:/dl/voronoi.dxf</string>
             </property>
            </widget>
           </item>
           <item>
            <widget class="QPushButton" name="mBrowseButton">
+            <property name="focusPolicy">
+             <enum>Qt::NoFocus</enum>
+            </property>
             <property name="text">
              <string>Browse</string>
             </property>
@@ -148,17 +243,46 @@
           </item>
          </layout>
         </item>
-        <item row="6" column="1">
-         <widget class="QSpinBox" name="mCurves">
-          <property name="suffix">
-           <string>%</string>
+        <item row="4" column="1">
+         <widget class="QGroupBox" name="mBezierGroupBox">
+          <property name="focusPolicy">
+           <enum>Qt::TabFocus</enum>
           </property>
-          <property name="maximum">
-           <number>100</number>
+          <property name="title">
+           <string>Bezier</string>
           </property>
-          <property name="value">
-           <number>50</number>
+          <property name="checkable">
+           <bool>true</bool>
           </property>
+          <property name="checked">
+           <bool>false</bool>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_2">
+           <item>
+            <layout class="QFormLayout" name="formLayout_2">
+             <item row="0" column="0">
+              <widget class="QLabel" name="label_7">
+               <property name="text">
+                <string>Curves</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="1">
+              <widget class="QSpinBox" name="mCurves">
+               <property name="suffix">
+                <string>%</string>
+               </property>
+               <property name="maximum">
+                <number>100</number>
+               </property>
+               <property name="value">
+                <number>50</number>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+          </layout>
          </widget>
         </item>
        </layout>
@@ -168,14 +292,38 @@
    </item>
    <item>
     <widget class="QPushButton" name="mGenerate">
+     <property name="focusPolicy">
+      <enum>Qt::TabFocus</enum>
+     </property>
      <property name="text">
-      <string>Generate &amp;&amp; Save DXF</string>
+      <string>Save DXF</string>
      </property>
     </widget>
    </item>
   </layout>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
+ <customwidgets>
+  <customwidget>
+   <class>cGLWidget</class>
+   <extends>QWidget</extends>
+   <header>cglwidget.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <tabstops>
+  <tabstop>mGLWidget</tabstop>
+  <tabstop>showClipperCheckbox</tabstop>
+  <tabstop>mSplineGroupBox</tabstop>
+  <tabstop>mAlpha</tabstop>
+  <tabstop>mTension</tabstop>
+  <tabstop>mSamples</tabstop>
+  <tabstop>mBezierGroupBox</tabstop>
+  <tabstop>mCurves</tabstop>
+  <tabstop>mOffset</tabstop>
+  <tabstop>mDXFFile</tabstop>
+  <tabstop>mGenerate</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

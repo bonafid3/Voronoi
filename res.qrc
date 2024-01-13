@@ -2,5 +2,9 @@
     <qresource prefix="/">
         <file>dxf1.txt</file>
         <file>dxf2.txt</file>
+        <file>default.svg</file>
+        <file>fs.glsl</file>
+        <file>vs.glsl</file>
+        <file>default.dxf</file>
     </qresource>
 </RCC>
