@@ -4,8 +4,6 @@ Creates 2D DXF voronoi pattern which can be used for 3D modelling, laser cutting
 
 ![voronoi](https://raw.githubusercontent.com/bonafid3/Voronoi/master/voronoi.jpg)
 
-Demonstration how this application looks & works: https://youtu.be/lfDEVQSPaeA
-
 # Usage
 
 WSAD + QE               = move the camera
