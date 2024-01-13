@@ -16,4 +16,4 @@ LMB                     = place voronoi site point
 
 LMB + mouse move        = move the closest site point
 
-RML                     = delete closest voronoi site point
+RMB                     = delete closest voronoi site point
