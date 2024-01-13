@@ -1,3 +1,7 @@
+v0.5 - Added DXF file support for loading clipping polygon
+     - Interactive way to add/move/delete voronoi site poins
+     - Added Spline curves
+
 v0.3 - Fixed Bezier curves
 
 v0.2 - Added Bezier smooth curve option
