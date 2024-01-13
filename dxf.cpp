@@ -35,32 +35,37 @@ void DXF::processDXF(const QString& fname)
     mF.setFileName(fname);
     if(mF.open(QFile::ReadOnly)) {
 
-        while(hasNext()) {
-            QString line = next();
+        try {
+            while(hasNext()) {
+                QString line = next();
 
-            if(mCurrentSection != eSection::eENTITIES) {
-                if(line == "ENTITIES") {
-                    mCurrentSection = eSection::eENTITIES;
-                    continue;
-                }
-            } else if(mCurrentSection == eSection::eENTITIES) {
-                if(line == "POINT") {
-                    mCurrentEntity = eEntity::ePOINT;
-                    processPointEntity();
-                } else if(line == "ARC") {
-                    mCurrentEntity = eEntity::eARC;
-                    processArcEntity(); // discovered the arc entity, now process it
-                } else if(line == "LINE") {
-                    mCurrentEntity = eEntity::eLINE;
-                    processLineEntity(); // discovered the line entity, now process it
-                } else if(line == "LWPOLYLINE") {
-                    mCurrentEntity = eEntity::eLWPOLYLINE;
-                    processLwPolyLineEntity(); // discovered the lw polyline entity, now process it
-                } else if(line == "ENDSEC") {
-                    mCurrentSection = eSection::eUNKNOWN;
+                if(mCurrentSection != eSection::eENTITIES) {
+                    if(line == "ENTITIES") {
+                        mCurrentSection = eSection::eENTITIES;
+                        continue;
+                    }
+                } else if(mCurrentSection == eSection::eENTITIES) {
+                    if(line == "POINT") {
+                        mCurrentEntity = eEntity::ePOINT;
+                        processPointEntity();
+                    } else if(line == "ARC") {
+                        mCurrentEntity = eEntity::eARC;
+                        processArcEntity(); // discovered the arc entity, now process it
+                    } else if(line == "LINE") {
+                        mCurrentEntity = eEntity::eLINE;
+                        processLineEntity(); // discovered the line entity, now process it
+                    } else if(line == "LWPOLYLINE") {
+                        mCurrentEntity = eEntity::eLWPOLYLINE;
+                        processLwPolyLineEntity(); // discovered the lw polyline entity, now process it
+                    } else if(line == "ENDSEC") {
+                        mCurrentSection = eSection::eUNKNOWN;
+                    }
                 }
             }
+        } catch(const char* e) {
+            qd << e;
         }
+
         mF.close();
     }
     sortSegments();
@@ -68,34 +73,21 @@ void DXF::processDXF(const QString& fname)
 
 void DXF::processLwPolyLineEntity()
 {
+    int code = -1;
     float x1, y1;
     int numPoints = -1;
     std::vector<QVector2D> points;
-    next(); // 5
-    auto idx = next(); qd << "IDX" << idx;
-    next(); // 330
-    next(); // 1F
-    next(); // 100
-    next(); // AcDbEntity
-    next(); // 8
-    next(); // 0
-    next(); // 6
-    next(); // Continuous
-    next(); // 62
-    next(); // 7
-    next(); // 100
-    qd << next(); // AcDbPolyline
-    while(1) {
-        int code = next().toInt();
+    while(code != 0) {
         if(numPoints == 0) break;
         switch(code) {
+        case 5: qd << next(); break;
             case 90: numPoints = next().toInt(); break;
             case 70: next(); break; // polyline flag, 0=default, 1=closed, 2=plinegen
             case 43: next(); break; // constant width
             case 10: x1 = next().toFloat(); break;
             case 20: y1 = next().toFloat(); points.push_back({x1, y1}); numPoints--; break;
-            case 0: qd << "end of lwpolyline"; break;
-            default: qd << "unhandled"; break;
+            case 0: qd << "end of lwpolyline entity"; break;
+            default: qd << "dxf:" << code << next(); break;
         }
     }
 
@@ -108,21 +100,6 @@ void DXF::processPointEntity()
 {
     int code = -1;
     float x, y, z;
-    next(); // 5
-    auto idx = next(); qd << "IDX" << idx;
-    next(); // 330
-    next(); // 1F
-    next(); // 100
-    next(); // AcDbEntity
-    next(); // 8
-    next(); // 0
-    next(); // 6
-    next(); // Continuous
-    next(); // 62
-    next(); // 7
-    next(); // 100
-    qd << next(); // AcDbPoint
-
     while(code != 0) {
         code = next().toInt();
         switch(code) {
@@ -130,7 +107,7 @@ void DXF::processPointEntity()
             case 20: y = next().toFloat(); break;
             case 30: z = next().toFloat(); break;
             case  0: qd << "end of point entity"; break;
-            default: qd << "unhandled in point entity"; break;
+            default: qd << "dxf:" << code << next(); break;
         }
     }
 }
@@ -138,21 +115,6 @@ void DXF::processPointEntity()
 void DXF::processArcEntity() {
     int code = -1;
     float x, y, z, radius, startAngle, endAngle;
-    next(); // 5
-    auto idx = next(); qd << "IDX" << idx;
-    next(); // 330
-    next(); // 1F
-    next(); // 100
-    next(); // AcDbEntity
-    next(); // 8
-    next(); // 0
-    next(); // 6
-    next(); // Continuous
-    next(); // 62
-    next(); // 7
-    next(); // 100
-    qd << next(); // AcDbCircle
-
     while(code != 0) {
         code = next().toInt();
         switch(code) {
@@ -160,11 +122,10 @@ void DXF::processArcEntity() {
             case 20: y = next().toFloat(); break;
             case 30: z = next().toFloat(); break;
             case 40: radius = next().toFloat(); break;
-            case 100: qd << next(); break;
             case 50: startAngle = next().toFloat(); break;
             case 51: endAngle = next().toFloat(); break;
             case  0: qd << "end of arc entity"; break;
-            default: qd << "unhandled in arc entity"; break;
+            default: qd << "dxf:" << code << next(); break;
         }
     }
 
@@ -194,21 +155,6 @@ void DXF::processArcEntity() {
 void DXF::processLineEntity() {
     int code = -1;
     float x1, y1, z1, x2, y2, z2;
-    next(); // 5
-    auto idx = next(); qd << "IDX" << idx;
-    next(); // 330
-    next(); // 1F
-    next(); // 100
-    next(); // AcDbEntity
-    next(); // 8
-    next(); // 0
-    next(); // 6
-    next(); // LineType: Continuous
-    next(); // 62
-    next(); // 7
-    next(); // 100
-    qd << next(); // AcDbLine
-
     while(code != 0) {
         code = next().toInt();
         switch(code) {
@@ -219,7 +165,7 @@ void DXF::processLineEntity() {
         case 30: z1 = next().toFloat(); break;
         case 31: z2 = next().toFloat(); break;
         case 0: qd << "end of line entity"; break;
-        default: qd << "unhandled in line entity"; break;
+        default: qd << "dxf:" << code << next(); break;
         }
     }
 
