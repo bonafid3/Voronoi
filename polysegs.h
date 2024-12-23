@@ -6,6 +6,17 @@
 
 struct PolySegs : public std::vector<Seg2f>
 {
+    double signedArea()
+    {
+        double area = 0.0;
+
+        for (int i = 0; i < size(); ++i) {
+            area += (at(i).p[0].x() * at(i).p[1].y() - at(i).p[0].y() * at(i).p[1].x());
+        }
+
+        return area / 2.0;
+    }
+
     void calcBounds() {
         mBounds.init();
         for(auto& p : *this) {

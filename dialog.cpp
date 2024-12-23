@@ -49,7 +49,9 @@ void Dialog::drawScene()
 {
     ui->mGLWidget->clearVBOs();
     drawSystem();
-    drawControlPoints();
+    if(ui->showSitePointsCheckbox->isChecked()) {
+        drawControlPoints();
+    }
     if(ui->showClipperCheckbox->isChecked()) {
         drawClipper();
     }
@@ -128,7 +130,9 @@ std::vector<QVector2D>::iterator Dialog::findMinDistPoint(QVector2D p)
 
 void Dialog::drawClipper()
 {
-    ui->mGLWidget->addToVBO(mDXF.segments().glFloatArray(), GL_LINES, QVector4D(0.1, 0.1, 1, 1));
+    for(auto& poly : mDXF.polygons()) {
+        ui->mGLWidget->addToVBO(poly.glFloatArray(), GL_LINES, QVector4D(0.1, 0.1, 1, 1));
+    }
 }
 
 void Dialog::drawSystem()
@@ -232,11 +236,13 @@ void Dialog::voronoi(const bool saveFile)
 
     int id=115;
 
-    Path mainPoly;
-    auto& s = mDXF.segments();
-    for(int i=0; i<s.size(); i++)
-    {
-        mainPoly << IntPoint(s[i].p0().x()*M, s[i].p0().y()*M) << IntPoint(s[i].p1().x()*M, s[i].p1().y()*M);
+    std::vector<Path> clipperPolygons;
+    for(auto& s : mDXF.polygons()) {
+        Path currentPoly;
+        for(int i=0; i<s.size(); i++) {
+            currentPoly << IntPoint(s[i].p0().x()*M, s[i].p0().y()*M) << IntPoint(s[i].p1().x()*M, s[i].p1().y()*M);
+        }
+        clipperPolygons.push_back(currentPoly);
     }
 
     const jcv_site* sites = jcv_diagram_get_sites( &diagram );
@@ -323,8 +329,10 @@ void Dialog::voronoi(const bool saveFile)
         }
 
         Clipper clipper;
-        clipper.AddPath(mainPoly, ptSubject, true);
-        clipper.AddPath(poly, ptClip, true);
+        for(auto& clipperPoly: clipperPolygons) {
+            clipper.AddPath(clipperPoly, ptClip, true);
+        }
+        clipper.AddPath(poly, ptSubject, true);
         clipper.Execute(ctIntersection, solution);
         if(!solution.empty()) {
             for(int s=0; s<solution.size(); s++) {
@@ -479,3 +487,10 @@ void Dialog::on_mBezierGroupBox_toggled(bool arg1)
     drawScene();
     voronoi();
 }
+
+void Dialog::on_showSitePointsCheckbox_stateChanged(int arg1)
+{
+    drawScene();
+    voronoi();
+}
+

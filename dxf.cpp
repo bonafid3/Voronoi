@@ -24,6 +24,11 @@ PolySegs& DXF::segments()
     return mSegments;
 }
 
+std::vector<PolySegs>& DXF::polygons()
+{
+    return mPolygons;
+}
+
 void DXF::processDXF(const QString& fname)
 {
     if(!QFile::exists(fname))
@@ -31,6 +36,7 @@ void DXF::processDXF(const QString& fname)
 
     mLines.clear();
     mSegments.clear();
+    mPolygons.clear();
 
     mF.setFileName(fname);
     if(mF.open(QFile::ReadOnly)) {
@@ -68,7 +74,14 @@ void DXF::processDXF(const QString& fname)
 
         mF.close();
     }
+
+    createPolygons();
+
     sortSegments();
+
+    for(auto& poly : mPolygons) {
+        qd << "signed area: " << poly.signedArea();
+    }
 }
 
 void DXF::processLwPolyLineEntity()
@@ -78,9 +91,10 @@ void DXF::processLwPolyLineEntity()
     int numPoints = -1;
     std::vector<QVector2D> points;
     while(code != 0) {
+        code = next().toInt();
         if(numPoints == 0) break;
         switch(code) {
-        case 5: qd << next(); break;
+            case 5: qd << next(); break;
             case 90: numPoints = next().toInt(); break;
             case 70: next(); break; // polyline flag, 0=default, 1=closed, 2=plinegen
             case 43: next(); break; // constant width
@@ -92,7 +106,7 @@ void DXF::processLwPolyLineEntity()
     }
 
     for(int i=0; i<points.size()-1; i++) {
-        mSegments.push_back({points[i],points[i+1]});
+        mSegments.push_back({points[i], points[i+1]});
     }
 }
 
@@ -170,6 +184,56 @@ void DXF::processLineEntity() {
     }
 
     mSegments.push_back({ {x1, y1}, {x2, y2} });
+}
+
+void DXF::createPolygons()
+{
+    if(mSegments.empty())
+        return;
+
+    while(mSegments.size()) {
+
+        PolySegs sorted;
+        sorted.push_back(mSegments[0]);
+        mSegments.erase(mSegments.begin());
+
+        while(mSegments.size()) {
+
+            QVector2D lastPoint = sorted.back().p1();
+            float minDist = std::numeric_limits<float>::max();
+            auto closestSegment = mSegments.begin();
+            bool flipSegment = false;
+
+            for(auto it = mSegments.begin(); it!= mSegments.end(); ++it) {
+                float distToStart = (lastPoint - it->p[0]).length();
+                float distToEnd = (lastPoint - it->p[1]).length();
+
+                if (distToStart < minDist || distToEnd < minDist) {
+                    closestSegment = it;
+                    minDist = std::min(distToStart, distToEnd);
+                    flipSegment = distToEnd < distToStart; // Flip segment if the end is closer
+                }
+            }
+
+            if(minDist > 0.5) {
+                // closest segment is too far end polygon creation here and start new one
+                break;
+            }
+
+            if(flipSegment) {
+                closestSegment->swap();
+            }
+
+            sorted.push_back(*closestSegment);
+            mSegments.erase(closestSegment);
+
+        }
+        mPolygons.push_back(sorted);
+    }
+
+    //mSegments = sorted;
+
+
 }
 
 void DXF::sortSegments()

@@ -68,6 +68,8 @@ private slots:
 
     void on_mBezierGroupBox_toggled(bool arg1);
 
+    void on_showSitePointsCheckbox_stateChanged(int arg1);
+
 private:
 
     DXF mDXF;

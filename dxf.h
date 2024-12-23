@@ -27,6 +27,7 @@ public:
     bool hasNext();
 
     PolySegs& segments();
+    std::vector<PolySegs>& polygons();
 
     QString next();
     void processArcEntity();
@@ -35,6 +36,7 @@ public:
     void processLwPolyLineEntity();
 
     void sortSegments();
+    void createPolygons();
 private:
     QFile mF;
     eSection mCurrentSection;
@@ -43,6 +45,7 @@ private:
     std::vector<QString> mLines;
 
     PolySegs mSegments;
+    std::vector<PolySegs> mPolygons;
 };
 
 #endif // DXF_H
