@@ -38,6 +38,9 @@ void DXF::processDXF(const QString& fname)
     mSegments.clear();
     mPolygons.clear();
 
+    mCurrentSection = eSection::eUNKNOWN;
+    mCurrentEntity = eEntity::eUNKNOWN;
+
     mF.setFileName(fname);
     if(mF.open(QFile::ReadOnly)) {
 
